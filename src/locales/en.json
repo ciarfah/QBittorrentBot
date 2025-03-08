@@ -21,7 +21,7 @@
   "common": {
     "menu": "Welcome to QBittorrent Bot",
     "menu_btn": {
-      "menu_list": "\uD83D\uDCDD List",
+      "menu_list": "\uD83D\uDCDD List All",
       "add_magnet": "➕ Add Magnet",
       "add_torrent": "➕ Add Torrent",
       "pause_resume": "⏯ Pause/Resume",
@@ -34,6 +34,11 @@
       "downloading": "⏳ ${active} Downloading",
       "completed": "✔\uFE0F ${active} Completed",
       "paused": "⏸\uFE0F ${active} Paused"
+    },
+
+    "list_view": {
+      "page_up": "↑ Page Up",
+      "page_down": "↓ Page Down"
     },
 
     "no_torrents": "There are no torrents",

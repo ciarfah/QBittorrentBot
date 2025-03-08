@@ -1,3 +1,4 @@
+import logging
 from pyrogram import Client
 from pyrogram.errors.exceptions import MessageIdInvalid
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -11,7 +12,9 @@ from ...utils import get_user_from_config
 from ...configs.enums import UserRolesEnum
 from ...translator import Translator, Strings
 
+logger = logging.getLogger(__name__)
 
+page_view_range = [0, 10]
 async def send_menu(client: Client, message_id: int, chat_id: int) -> None:
     user = get_user_from_config(chat_id)
     buttons = [
@@ -46,10 +49,16 @@ async def send_menu(client: Client, message_id: int, chat_id: int) -> None:
         )
 
 
-async def list_active_torrents(client: Client, chat_id: int, message_id: int, callback: Optional[str] = None, status_filter: str = None) -> None:
+async def list_active_torrents(client: Client, chat_id: int, message_id: int, callback: Optional[str] = None, status_filter: str = None, show_range: list[int] = [0, 9]) -> None:
+    page_view_range = show_range
     user = get_user_from_config(chat_id)
     repository = ClientRepo.get_client_manager(Configs.config.client.type)
     torrents = repository.get_torrents(status_filter=status_filter)
+    n_torrents = len(torrents)
+    torrents = torrents[page_view_range[0]:page_view_range[1]]
+
+    logger.debug(f"Retrieving first {len(torrents)} torrents of {n_torrents}")
+
 
     def render_categories_buttons():
         return [
@@ -74,8 +83,24 @@ async def list_active_torrents(client: Client, chat_id: int, message_id: int, ca
                 "by_status_list#paused"
             ),
         ]
+    
+    def render_scroll_buttons():
+        return [
+            InlineKeyboardButton(
+                Translator.translate(
+                    Strings.ListViewPageUp, user.locale),
+                f"list_page_up#{page_view_range[0]},{page_view_range[1]},{n_torrents}"
+            ),
+
+            InlineKeyboardButton(
+                Translator.translate(
+                    Strings.ListViewPageDown, user.locale),
+                f"list_page_down#{page_view_range[0]},{page_view_range[1]},{n_torrents}"
+            )
+        ]
 
     categories_buttons = render_categories_buttons()
+    scroll_buttons = render_scroll_buttons()
     if not torrents:
         buttons = [
             categories_buttons,
@@ -110,7 +135,9 @@ async def list_active_torrents(client: Client, chat_id: int, message_id: int, ca
     else:
         for _, i in enumerate(torrents):
             buttons.append([InlineKeyboardButton(i.name, f"torrentInfo#{i.hash}")])
-
+    
+    buttons.append(scroll_buttons)
+    
     buttons.append(
         [
             InlineKeyboardButton(Translator.translate(Strings.BackToMenu, user.locale), "menu")

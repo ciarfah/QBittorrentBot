@@ -14,6 +14,20 @@ async def list_by_status_callback(client: Client, callback_query: CallbackQuery)
     status_filter = callback_query.data.split("#")[1]
     await list_active_torrents(client, callback_query.from_user.id, callback_query.message.id, status_filter=status_filter)
 
+@Client.on_callback_query(custom_filters.list_page_down_filter & custom_filters.check_user_filter)
+async def list_page_down_callback(client: Client, callback_query: CallbackQuery) -> None:
+    current_range_info = callback_query.data.split("#")[1].split(",")
+    show_range = [int(current_range_info[1]), min(int(current_range_info[1])+10, int(current_range_info[2]))] #show next 10 or remaining
+    #show_range = [show_range[0], show_range[1]]
+    await list_active_torrents(client, callback_query.from_user.id, callback_query.message.id, show_range=show_range)
+
+@Client.on_callback_query(custom_filters.list_page_up_filter & custom_filters.check_user_filter)
+async def list_page_up_callback(client: Client, callback_query: CallbackQuery) -> None:
+    current_range_info = callback_query.data.split("#")[1].split(",")
+    # show_range = [max(current_range_info[0]-10, 0), current_range_info[1]-1]
+    show_range = [max(int(current_range_info[0])-10, 0), int(current_range_info[0])]
+    pass
+    await list_active_torrents(client, callback_query.from_user.id, callback_query.message.id, show_range=show_range)
 
 @Client.on_callback_query(custom_filters.menu_filter & custom_filters.check_user_filter)
 async def menu_callback(client: Client, callback_query: CallbackQuery) -> None:

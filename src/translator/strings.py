@@ -32,6 +32,9 @@ class Strings(StrEnum):
     ListFilterCompleted = "common.list_filter.completed"
     ListFilterPaused = "common.list_filter.paused"
 
+    ListViewPageUp = "common.list_view.page_up"
+    ListViewPageDown = "common.list_view.page_down"
+
     NoTorrents = "common.no_torrents"
     BackToMenu = "common.back_to_menu_btn"
 
